@@ -1,0 +1,92 @@
+Option Compare Database
+Option Explicit
+
+Public Function VerknuepfungAktualisieren(Optional strFile As String) As Boolean
+    Dim db As DAO.Database
+    Dim tdf As DAO.TableDef
+    Set db = CurrentDb
+    BackendAktualisieren strFile
+    For Each tdf In db.TableDefs
+        If Len(tdf.Connect) > 0 Then
+            If Len(strFile) > 0 Then
+                tdf.Connect = ";database=" & strFile
+            End If
+            On Error Resume Next
+            tdf.RefreshLink
+            Select Case Err.Number
+                Case 3024, 3170
+                    Exit Function
+            End Select
+            On Error GoTo 0
+        End If
+    Next tdf
+    VerknuepfungAktualisieren = True
+    
+End Function
+
+Public Sub BackendAktualisieren(strBackend As String)
+    Dim db As DAO.Database
+    Dim tdf As DAO.TableDef
+    Dim fld As DAO.Field
+    Dim fldrel As DAO.Field
+    Dim rel As DAO.Relation
+    Dim idx As DAO.Index
+    Dim strVersionBE As String
+    Set db = OpenDatabase(strBackend)
+    Debug.Print strBackend
+    On Error Resume Next
+    strVersionBE = DLookup("Version", "tbl_VersionBE")
+    On Error GoTo 0
+    If strVersionBE = "" Then
+        On Error Resume Next
+        db.Execute "CREATE TABLE tbl_VersionBE(Version VARCHAR(255))", dbFailOnError
+        On Error GoTo 0
+        db.Execute "DELETE FROM tbl_VersionBE", dbFailOnError
+        db.Execute "INSERT INTO tbl_VersionBE(Version) VALUES('1.1')", dbFailOnError
+    End If
+    Exit Sub
+'***Version 2
+    strVersionBE = db.OpenRecordset("SELECT Version FROM tbl_VersionBE").Fields(0)
+    If strVersionBE = "1" Then
+        'Relation zwischen tblBankverbindungen und tblKunden erst löschen und dann mit Löschweitergabe neu anlegen
+        Set db = OpenDatabase(strBackend)
+        ''db.Execute "DELETE FROM tblBankverbindungen WHERE KundeID NOT IN (SELECT KundeID FROM tblKunden)", dbFailOnError
+        For Each rel In db.Relations
+            If rel.Table = "tbl_reports_local" And rel.ForeignTable = "tblBankverbindungen" Then
+                db.Relations.Delete rel.Name
+                Exit For
+            End If
+        Next rel
+        Set rel = db.CreateRelation()
+        rel.Name = "relKundenBankverbindungen"
+        rel.ForeignTable = "tblBankverbindungen"
+        rel.Table = "tblKunden"
+        rel.Attributes = 4096
+        Set fldrel = rel.CreateField("KundeID", dbLong)
+        fldrel.ForeignName = "KundeID"
+        fldrel.Name = "KundeID"
+        rel.Fields.Append fldrel
+        db.Relations.Append rel
+        
+        'Relation zwischen tblVertraege und tblKunden erst löschen und dann mit Löschweitergabe neu anlegen
+        Set db = OpenDatabase(strBackend)
+        db.Execute "DELETE FROM tblVertraege WHERE KundeID NOT IN (SELECT KundeID FROM tblKunden)", dbFailOnError
+        For Each rel In db.Relations
+            If rel.Table = "tblKunden" And rel.ForeignTable = "tblVertraege" Then
+                db.Relations.Delete rel.Name
+                Exit For
+            End If
+        Next rel
+        Set rel = db.CreateRelation()
+        rel.Name = "relKundenVertraege"
+        rel.ForeignTable = "tblVertraege"
+        rel.Table = "tblKunden"
+        rel.Attributes = 4096
+        Set fldrel = rel.CreateField("KundeID", dbLong)
+        fldrel.ForeignName = "KundeID"
+        fldrel.Name = "KundeID"
+        rel.Fields.Append fldrel
+        db.Relations.Append rel
+        db.Execute "UPDATE tbl_VersionBE SET Version = '2'"
+    End If
+End Sub
