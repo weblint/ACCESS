@@ -1,0 +1,32 @@
+Option Compare Database
+
+Type GUID
+   Data1 As Long
+   Data2 As Integer
+   Data3 As Integer
+   Data4(7) As Byte
+End Type
+ 
+Declare Function CoCreateGuid Lib "OLE32.DLL" (pGuid As GUID) As Long
+ 
+Public Function NewGUID() As String
+  Dim UID As GUID
+  Dim i As Integer
+  CoCreateGuid UID
+ 
+  NewGUID = _
+  hex0(UID.Data1, 8) & "-" & _
+  hex0(UID.Data2, 4) & "-" & _
+  hex0(UID.Data3, 4) & "-" & _
+  hex0(UID.Data4(0), 2) & _
+  hex0(UID.Data4(1), 2) & "-"
+  For i = 2 To 7
+    NewGUID = NewGUID & hex0(UID.Data4(i), 2)
+  Next
+  NewGUID = "{" & NewGUID & "}"
+End Function
+ 
+Private Function hex0(n, digits As Integer) As String
+  hex0 = Hex(n)
+  hex0 = String(digits - Len(hex0), "0") & hex0
+End Function
