@@ -1,0 +1,115 @@
+Option Compare Database
+Option Explicit
+
+
+' Funktionen, die ausschliesslich von Abfragen genutzt werden
+' Zur schnellen und einheitlichen Formatierung
+' Alle erforderlichen Daten werden in Parametern übergeben
+
+
+Public Function ABFRZahlInText(Zahl As Variant) As String
+  ABFRZahlInText = "0"
+  If Not IsNull(Zahl) Then
+    ABFRZahlInText = Trim(str(Zahl))
+  End If
+End Function
+
+Public Function ABFRHausNr(Adresse As Variant) As String
+  Dim i As Byte
+  Dim Buchstabe As String
+  Dim Laenge As Byte
+  
+  If Len(Adresse) > 0 Then
+    If Len(Adresse) > 255 Then
+      Laenge = 255
+    Else
+      Laenge = Len(Adresse)
+    End If
+    For i = 1 To Laenge
+      Buchstabe = Mid(Adresse, Laenge - i + 1, 1)
+      If Buchstabe = " " Then Exit For
+    Next i
+    ABFRHausNr = Right(Adresse, i - 1)
+  End If
+End Function
+
+Public Function ABFRStrasse(Adresse As Variant) As String
+  Dim i As Byte
+  Dim Buchstabe As String
+  Dim Laenge As Byte
+  
+  If Len(Adresse) > 0 Then
+    If Len(Adresse) > 255 Then
+      Laenge = 255
+    Else
+      Laenge = Len(Adresse)
+    End If
+    For i = 1 To Laenge
+      Buchstabe = Mid(Adresse, Laenge - i + 1, 1)
+      If Buchstabe = " " Then Exit For
+    Next i
+    ABFRStrasse = Trim(Left(Adresse, Laenge - i))
+  End If
+End Function
+
+Public Function NurZiffern(ZahlMitText As String) As String
+  Dim Zahl As String
+  Dim Laenge As Long
+  Dim BuchStab As String
+  Dim i As Long
+
+  NurZiffern = ""
+  Laenge = Len(ZahlMitText)
+  If Laenge > 0 Then
+    For i = 1 To Laenge
+      BuchStab = Mid(ZahlMitText, i, 1)
+      If (Asc(BuchStab) >= 48 And Asc(BuchStab) <= 57) Then
+        NurZiffern = NurZiffern + BuchStab
+      End If
+    Next i
+  End If
+End Function
+
+
+
+Public Function ABFRFotoUntOrdWeb(PersNr As Variant) As String
+  Dim lngNr As Long
+  
+  If Not IsNull(PersNr) Then
+    lngNr = PersNr
+    ABFRFotoUntOrdWeb = "promid_web" + Right("0000" + Trim(str(Int((PersNr + 999) / 1000) * 1000)), 5) + "\"
+  End If
+End Function
+
+
+
+Public Function ABFRAnrStatus(varStat1 As Variant, _
+                              Optional varStat2 As Variant = Null, _
+                              Optional varStat3 As Variant = Null, _
+                              Optional varStat4 As Variant = Null, _
+                              Optional varStat5 As Variant = Null) As String
+  Dim bytI As Byte
+  Dim bytMax As Byte
+  
+  If IsNull(varStat1) Then varStat1 = 0
+  If IsNull(varStat2) Then varStat2 = 0
+  If IsNull(varStat3) Then varStat3 = 0
+  If IsNull(varStat4) Then varStat4 = 0
+  If IsNull(varStat5) Then varStat5 = 0
+  bytMax = 0
+  For bytI = 1 To 4
+    If varStat1 = bytI Then bytMax = bytI
+    If varStat2 = bytI Then bytMax = bytI
+    If varStat3 = bytI Then bytMax = bytI
+    If varStat4 = bytI Then bytMax = bytI
+    If varStat5 = bytI Then bytMax = bytI
+  Next bytI
+  Select Case bytMax
+    Case 0: ABFRAnrStatus = "NA"
+    Case 1: ABFRAnrStatus = "NE"
+    Case 2: ABFRAnrStatus = "AB"
+    Case 3: ABFRAnrStatus = "BS"
+    Case 4: ABFRAnrStatus = "RR"
+  End Select
+End Function
+
