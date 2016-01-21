@@ -1,0 +1,50 @@
+Private Sub Form_Load()
+Dim sql, X As String
+Dim rs2 As Recordset
+Set rs2 = CurrentDb().OpenRecordset("_settings", dbOpenDynaset)
+
+'Änderungsprotokoll
+ Set objAenderungsprotokollierung = New clsAenderungsprotokollierung
+    With objAenderungsprotokollierung
+        Set .Form = Me
+        .BenutzerID = GetCurrentUser
+    End With
+    
+    
+'X = rs2![last]
+'Me.RecordSource = ""
+'wurde erweitert um...
+'SELECT tbl_reports_local.ID, tbl_reports_local.Task, tbl_reports_local.Type, tbl_reports_local.Impact, tbl_reports_local.Date_from, tbl_reports_local.Date_to, tbl_reports_local.Link, tbl_reports_local.ReTestliste, tbl_reports_local.GeplanterTeststart,tbl_reports_local.GeplantesTestende,tbl_reports_local.Projektleiter"
+
+'je jachdem was sinnvoller erscheint folgende Query für den Start aktivieren..
+
+'alle DS anzeigen...
+'sq0=TableSet_all_DS
+'sql = sql + " FROM tbl_reports_local"
+'sql = sql + " ORDER BY tbl_reports_local.Date_from DESC;"
+
+'alle offenen anzeigen...
+sql = TableSet
+sql = sql + " FROM tbl_reports_local"
+sql = sql + " WHERE (((tbl_reports_local.Date_to) Is Null))"
+sql = sql + " ORDER BY tbl_reports_local.Date_from DESC;"
+
+ Dim db As DAO.Database
+    Set db = CurrentDb
+    db.Execute "UPDATE tblVerlauf SET PopuplisteID = NULL", dbFailOnError
+    Set db = Nothing
+'-----------------------------------------------
+'sql = "SELECT tbl_reports_local.ID, tbl_reports_local.Task,tbl_reports_local.Task_unique, tbl_reports_local.Type, tbl_reports_local.Impact, tbl_reports_local.Date_from, tbl_reports_local.Date_to, tbl_reports_local.Link, tbl_reports_local.ReTestliste, tbl_reports_local.GeplanterTeststart,tbl_reports_local.GeplantesTestende,tbl_reports_local.Projektleiter,tbl_reports_local.AuftragNr"
+'sql = sql + " FROM tbl_reports_local"
+'sql = sql + " WHERE (((tbl_reports_local.ID) = " & x & "))"
+'sql = sql + " ORDER BY tbl_reports_local.Date_from DESC;"
+'klappt aber nur ein DS wird dann angezeigt :-(
+
+DoCmd.Maximize
+
+Me.RecordSource = sql
+'DoCmd.DoMenuItem acFormBar, acRecordsMenu, acSaveRecord, , acMenuVer70
+'DoCmd.DoMenuItem acFormBar, acRefresh, acRefresh, , acMenuVer70
+
+
+End Sub
