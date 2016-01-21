@@ -1,0 +1,52 @@
+BE Start and Close
+
+1) Form Start, beim Laden:
+Private Sub Form_Load()
+Dim a As Integer
+a = MsgBox(" Sie haben nur das Backend geöffnet. Hier befinden sich nur die Daten-Tabellen. Applikation wird wieder beendet!", 16)
+DoCmd.RunMacro "mkr_Quit"
+End Sub
+
+2)
+mkr_Quit
+(Access beenden)
+
+
+3)
+Optionen, Aktuelle Datenbank, Formular anzeigen "frm_Start"
+
+4) 
+Optionen, Aktuelle Datenbank, Navigationsbereich anzeigen NEIN
+
+
+****************************Tabellen einbinden*********************************************
+Frontend Start
+Private Sub Form_Load()
+Dim strBackend As String
+    On Error Resume Next
+    Debug.Print Nz(DLookup("ID", "tbl_know_how"), "")
+    'Stop
+    If Not Err.Number = 0 Then
+        On Error Resume Next
+        Open CurrentProject.path & "\BEPath.txt" For Input As #1
+        Line Input #1, strBackend
+        Close #1
+        On Error GoTo 0
+        If Len(strBackend) > 0 And Len(Dir(strBackend)) > 0 Then
+            VerknuepfungAktualisieren strBackend
+        Else
+            MsgBox "Das Backend konnte nicht gefunden werden. Bitte wählen Sie es im folgenden Dialog aus.", vbOKOnly, "Backend nicht gefunden"
+            strBackend = OPENFILENAME(CurrentProject.path, "Backend auswählen", "Backend-Datenbank (*.accdb)")
+            VerknuepfungAktualisieren strBackend
+        End If
+    Else
+        On Error GoTo 0
+        VerknuepfungAktualisieren DLookup("Database", "MSysObjects", "Name='tbl_know_how'")
+    End If
+    On Error GoTo 0
+    Open CurrentProject.path & "\BEPath.txt" For Output As #1
+    Print #1, DLookup("Database", "MSysObjects", "Name='tbl_QA'")
+    Close #1
+    DoCmd.OpenForm "frm_Main"
+    DoCmd.Close acForm, Me.Name
+End Sub
