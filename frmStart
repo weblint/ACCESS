@@ -1,0 +1,8 @@
+Option Compare Database
+Option Explicit
+
+Private Sub Form_Load()
+Dim a As Integer
+a = MsgBox(" Sie haben nur das Backend geöffnet. Hier befinden sich nur die Daten-Tabellen. Applikation wird wieder beendet!", 16)
+DoCmd.RunMacro "mkr_Quit"
+End Sub
