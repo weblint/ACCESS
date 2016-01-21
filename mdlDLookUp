@@ -1,0 +1,37 @@
+Private Sub Form_Current()
+'Combobox synchron halten...
+'Me.NameOfComboBox = Me.NameOfControl
+'Me.Combo27 = Me.ID
+'Me.ID = Me.Combo27
+Dim a, X As Integer
+Dim b, Mat, Art, fill As String
+On Error Resume Next
+If IsNull(Me.Task_unique) Then
+        Me.Befehl229.Enabled = True
+        b = NewGUID
+        'a = MsgBox(b)
+        Me.Task_unique = b
+End If
+Me.Befehl229.Enabled = False
+
+ Me!cboAuswahl = Me!ID
+    VerlaufSpeichern Me!ID, Me!Task
+    Me!lstPopupliste.Visible = False
+    PopuplisteAktualisieren
+    If Nz(DLookup("PKID", "tblVerlauf", "PopuplisteID > 0"), 0) = 0 Then
+       ' Me!cmdNaechster.Enabled = False
+    Else
+        Me!cmdNaechster.Enabled = True
+    End If
+    If Nz(DLookup("PKID", "tblVerlauf", "PopuplisteID < 0"), 0) = 0 Then
+       ' Me!cmdVorheriger.Enabled = False
+    Else
+        Me!cmdVorheriger.Enabled = True
+    End If
+Me.Caption = DLookup("'[' & ID & ']  ' & Task", "tbl_reports_local", "ID = " & Nz([ID], 0))
+Mat = DLookup("Material", "tbl_reports_local", "ID =" & Nz([ID], 0))
+Art = DLookup("Artikel", "tbl_reports_local", "ID= " & Nz([ID], 0))
+fill = " / "
+'Me.txtMatArtikelName = Mat & "; " & Art
+Me.txtMatArtikelName = Art & fill & Mat
+End Sub
