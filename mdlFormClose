@@ -1,0 +1,5 @@
+Case "btn_2"
+            For i = Forms.count - 1 To 0 Step -1
+                DoCmd.Close acForm, Forms(i).Name, acSaveYes
+            Next i
+            DoCmd.OpenForm ("frmKunden")
