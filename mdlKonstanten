@@ -1,0 +1,14 @@
+Option Compare Database
+Option Explicit
+
+Public Const PKAllgSchriftFett As Integer = 700
+Public Const PKAllgSchriftNorm As Integer = 400
+
+Public Const KLNameFrm = "Frm_Personal_Tava"
+
+Public Const TableSet = "SELECT tbl_reports_local.ID, tbl_reports_local.Task,tbl_reports_local.Task_unique, tbl_reports_local.Type, tbl_reports_local.Impact, tbl_reports_local.Date_from, tbl_reports_local.Date_to, tbl_reports_local.Link, tbl_reports_local.ReTestliste, tbl_reports_local.GeplanterTeststart,tbl_reports_local.GeplantesTestende,tbl_reports_local.Projektleiter,tbl_reports_local.AuftragNr,tbl_reports_local.Kosten,tbl_reports_local.Material, tbl_reports_local.SerialNo, tbl_reports_local.RK, tbl_reports_local.GW, tbl_reports_local.Type_Q1, tbl_reports_local.Type_Q2, tbl_reports_local.Type_Z2,tbl_reports_local.Artikel,tbl_reports_local.RepAuftr"
+Public Const TableSet_Word = "SELECT DISTINCT tbl_reports_local.ID, tbl_reports_local.Task, tbl_reports_local.Type_Q1, tbl_reports_local.Type_Q2, tbl_reports_local.Type, Left([tbl_reports_local.Impact],50) AS Impact, tbl_reports_local.Date_from, tbl_reports_local.GeplanterTeststart AS Start, tbl_reports_local.GeplantesTestende AS Ende, tbl_reports_local.ReTestliste, DateDiff('d',Date(),[GeplantesTestende]) AS [Zeit Über], Last(Left([tbl_dtl_Reports_local.Comment],50)) AS LetzterWertvonComment"
+Public Const TableSet_LSB = "SELECT DISTINCT tbl_reports_local.ID,tbl_reports_local.task_unique, tbl_reports_local.Task, tbl_reports_local.Type, tbl_reports_local.Impact, tbl_reports_local.Date_from, tbl_reports_local.Date_to, tbl_reports_local.Link, tbl_reports_local.GeplanterTeststart, tbl_reports_local.GeplantesTestende, tbl_reports_local.Projektleiter, tbl_reports_local.AuftragNr,tbl_reports_local.Kosten,tbl_reports_local.Material, tbl_reports_local.SerialNo, tbl_reports_local.RK, tbl_reports_local.GW, tbl_reports_local.Type_Q1, tbl_reports_local.Type_Q2, tbl_reports_local.Type_Z2,tbl_reports_local.Artikel,tbl_reports_local.ReTestliste,tbl_reports_local.RepAuftr"
+Public Const TableSet_all_DS = "SELECT tbl_reports_local.ID, tbl_reports_local.Task,tbl_reports_local.Task_unique, tbl_reports_local.Type, tbl_reports_local.Impact, tbl_reports_local.Date_from, tbl_reports_local.Date_to, tbl_reports_local.Link, tbl_reports_local.ReTestliste, tbl_reports_local.GeplanterTeststart,tbl_reports_local.GeplantesTestende,tbl_reports_local.Projektleiter,tbl_reports_local.AuftragNr"
+Public Const TableSet_Restest = "SELECT qry_Retestliste.Type_Q1 AS Retestliste_, tbl_Abgleich_Arbeitsvorrat.[Servicenummer Q2] AS [Arbeitsvorrat SAP], qry_Retestliste.ID, qry_Retestliste.Task, qry_Retestliste.Impact"
+
