@@ -3,3 +3,5 @@ Case "btn_2"
                 DoCmd.Close acForm, Forms(i).Name, acSaveYes
             Next i
             DoCmd.OpenForm ("frmKunden")
+Case Else
+        MsgBox ("not available Button Function: " & control.ID)
