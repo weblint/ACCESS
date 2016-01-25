@@ -1,0 +1,30 @@
+Option Compare Database
+Option Explicit
+
+Function ShowAllTables(Optional bShowFieldsToo As Boolean)
+    'Purpose:   List the tables (and optionally their fields) using ADOX.
+    Dim cat As New ADOX.Catalog 'Root object of ADOX.
+    Dim tbl As ADOX.Table       'Each Table in Tables.
+    Dim col As ADOX.Column      'Each Column in the Table.
+    
+    'Point the catalog to the current project's connection.
+    Set cat.ActiveConnection = CurrentProject.Connection
+    
+    'Loop through the tables.
+    For Each tbl In cat.Tables
+        Debug.Print tbl.Name, tbl.Type
+        If bShowFieldsToo Then
+        'Loop through the columns of the table.
+        For Each col In tbl.Columns
+            Debug.Print , col.Name, col.Type
+        Next
+        Debug.Print "--------------------------------"
+        'Stop
+        End If
+    Next
+    
+    'Clean up
+    Set col = Nothing
+    Set tbl = Nothing
+    Set cat = Nothing
+End Function
