@@ -1,0 +1,238 @@
+http://www.access-im-unternehmen.de/30
+http://www.access-im-unternehmen.de/136
+http://www.access-im-unternehmen.de/693
+http://www.access-im-unternehmen.de/786
+1) Abfrage entwerfen
+
+Mit einer Abfrage stellen Sie die zu exportierenden Daten zusammen. 
+Sie können entweder eine eigene Abfrage entwerfen oder die Abfrage qryBestellungenUndKunden aus der Beispieldatenbank 
+zu diesem Beitrag verwenden.
+
+Fügen Sie der Abfrage alle Felder hinzu, die Sie exportieren möchten. 
+Definieren Sie auch die Kriterien, mit denen Sie die zum Export vorgesehenen Datensätze selektieren. 
+Um das VBA-Programm für den Export zu entwerfen, gehen Sie wie folgt vor:
+
+DoCmd.OpenQuery _
+    "qryBestellungenUndKunden"
+
+DoCmd.RunCommand acCmdOutputToExcel
+
+Oder
+
+Export als .csv-Datei
+Mit der TransferText-Methode können Sie die Daten beispielsweise in eine .csv-Datei exportieren. 
+.csv-Dateien enthalten für jeden Datensatz eine eigene Textzeile.
+Die Felder des Datensatzes sind durch Semikola getrennt. Textfelder sind durch doppelte Anführungszeichen eingeklammert.
+Der folgende Befehl exportiert die Daten der Abfrage qryBestellungenUndKunden in die Textdatei Bestellungen.csv:
+DoCmd.TransferText acExportDelim, "", _
+    "qryBestellungenUndKunden", _
+    "C:\bestellungen.txt", True, ""
+
+Da das QueryDefs-Objekt nicht jedes Mal neu generiert wird, 
+muss es vor Aufruf der Prozedur bereits in der aktuellen Datenbank enthalten sein.    
+
+Dim dbs As Database
+Set dbs = CurrentDb
+dbs.QueryDefs("qryExportToExcel").SQL _
+    = sSQL
+dbs.QueryDefs("qryExportToExcel").Close
+ExportQueryToExcel
+
+Das Listing aus Quellcode 2 zeigt die Funktion im Detail.
+Public Function ExcelDateiNameErmitteln() As String
+
+    Dim sDateiname As String
+
+    sDateiname = GetDBPath() & "\Bestellungen" & Format(Date, "yyyymmdd")
+
+    Dim sTestname As String
+
+    Dim i As Integer
+
+    i = 0
+
+    Dim lDateiVorhanden As Boolean
+
+    lDateiVorhanden = True
+
+    ' Ende, wenn bereits 1.000 Dateien an diesen angelegt wurden.
+
+    While lDateiVorhanden And i <= 999
+
+        sTestname = sDateiname & Format(i, "000") & ".xls"
+
+        If Not FileExists(sTestname) Then
+
+            lDateiVorhanden = False
+
+            sDateiname = sTestname
+
+        End If
+
+        i = i + 1
+
+    Wend
+
+    If Not lDateiVorhanden Then
+
+        ExcelDateiNameErmitteln = sDateiname
+
+    End If
+
+End Function
+
+
+
+Excel starten
+
+strExcelDatei = ExcelDateiNameErmitteln()
+
+If Len(strExcelDatei) = 0 Then
+
+    MsgBox "Es konnte kein Dateiname für die Excel-Datei ermittelt werden. Bitte " _
+    & "löschen Sie nicht mehr benötigte Dateien aus dem Verzeichnis.", vbCritical, _
+    sAppname
+
+    Exit Sub
+
+End If
+
+Dim ExcelSheet As Object
+
+'Überprüfen, ob Excel gestartet werden muss.
+
+If IstExcelGestartet() Then
+
+    Set ExcelSheet = GetObject(, "Excel.Application")    ' Excel war schon gestartet
+
+Else
+
+    Set ExcelSheet = CreateObject("Excel.Application")   ' Excel starten
+
+End If
+
+' Anstehende Ereignisse des Betriebssystems verarbeiten lassen.
+
+DoEvents
+
+' Überprüfen, ob das Excel-Objekt erfolgreich instanziert wurde.
+
+If ExcelSheet Is Nothing Then
+
+    MsgBox "Das Excel-Objekt konnte nicht erstellt werden.", vbCritical, sAppname
+
+    Exit Sub
+
+End If
+
+Überprüfen, ob Excel gestartet ist
+Public Function IstExcelGestartet() As Boolean
+
+    ' Stellt fest, ob Excel gerade geladen ist
+
+    Dim obj As Object
+
+    On Error Resume Next
+
+    ' Prüfen, ob Excel-Objekt instanziert werden kann.
+
+    Set obj = GetObject(, "Excel.Application")
+
+    IstExcelGestartet = (Err.Number = 0)
+
+    Set obj = Nothing
+
+End Function
+
+' Excel mit Hilfe des Application-Objekts bereitstellen
+
+ExcelSheet.Application.Visible = True
+
+Const xlMinimized = -4140
+
+Const xlNormal = -4143
+
+If ExcelSheet.WindowState = xlMinimized Then
+
+    ExcelSheet.WindowState = xlNormal
+
+End If
+
+' Neues Workbook hinzufügen
+
+ExcelSheet.workbooks.Add
+
+' Das Excel-Sheet speichern
+
+ExcelSheet.ActiveWorkbook.SaveAs Filename:=strExcelDatei
+
+If ExcelSheet.workbooks.Count = 0 Then
+
+    MsgBox "Momentan ist keine Excel-Mappe geöffnet.", _
+        vbCritical, sAppname
+
+    Exit Sub
+
+End If
+
+Feldnamen in Kopfzeile schreiben
+  Set dbs = CurrentDb()
+
+    Set rDaten = dbs.OpenRecordset("qryExportToExcel")
+
+    rDaten.MoveFirst
+
+    ' Feldnamen in Kopfzeile schreiben
+
+    Dim iSpalte As Integer
+
+    Dim iZeile As Integer
+
+    iZeile = 1
+
+    For iSpalte = 0 To dbs.QueryDefs("qryExportToExcel").Fields.Count - 1
+
+        vCellValue = dbs.QueryDefs("qryExportToExcel").Fields(iSpalte).Name
+
+        ExcelSheet.ActiveSheet.Cells(iZeile, iSpalte + 1).Value = vCellValue
+
+    Next iSpalte
+
+' Daten übertragen
+
+iZeile = 2
+
+While Not rDaten.EOF
+
+    For iSpalte = 0 To dbs.QueryDefs("qryExportToExcel").Fields.Count - 1
+
+        If rDaten.Fields(iSpalte).Name = "Homepage" Or rDaten.Fields(iSpalte).Name = _
+            "E-Mail" Then
+
+            ' Adresse des Hyperlink-Feldes ermitteln
+
+            vCellValue = HyperlinkPart(Nz(rDaten.Fields(iSpalte)), acAddress)
+
+            ' Hyperlink in Excel einfügen
+
+            ExcelSheet.ActiveSheet.Hyperlinks.Add Anchor:=ExcelSheet. _
+
+                ActiveSheet.Cells(iZeile, iSpalte + 1), Address:=vCellValue
+
+        Else
+
+            ' ASCII 13,10 durch ASCII 10 ersetzen
+
+            vCellValue = Replace(Nz(rDaten.Fields(iSpalte).Value), vbCrLf, vbLf)
+
+            ExcelSheet.ActiveSheet.Cells(iZeile, iSpalte + 1).Value = vCellValue
+
+        End If
+
+    Next iSpalte
+
+    iZeile = iZeile + 1
+
+    rDaten.MoveNext
+
+Wend   ' Daten übertragen
