@@ -1,0 +1,33 @@
+Option Compare Database
+
+ Public Function ObjektAnzahlen()
+ 
+     ' -----------------------------------------------------
+     ' Ausgeben der Anzahl der in Access enthaltenen Objekte
+     ' -----------------------------------------------------
+ 
+     Dim dbs As Database
+     Dim cnt As Container
+     Dim doc As Document
+ 
+     Set dbs = CurrentDb
+ 
+       ' TABELLEN oder ABFRAGEN
+           Debug.Print Application.CurrentData.AllTables.Count & " Tabellen"
+           Debug.Print Application.CurrentData.AllQueries.Count & " Abfragen"
+       ' FORMULARE
+           Set cnt = dbs.Containers!Forms
+           Debug.Print cnt.Documents.Count & " Formulare"
+       ' REPORTS
+           Set cnt = dbs.Containers!Reports
+           Debug.Print cnt.Documents.Count & " Berichte"
+       ' MAKROS
+           Set cnt = dbs.Containers!Scripts
+           Debug.Print cnt.Documents.Count & " Makros"
+       ' MODULE
+           Set cnt = dbs.Containers!Modules
+           Debug.Print cnt.Documents.Count & " Module"
+ 
+           Set dbs = Nothing
+ 
+     End Function
