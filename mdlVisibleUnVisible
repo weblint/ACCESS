@@ -1,0 +1,13 @@
+Function SichtbarUnsichtbar(element As control)
+    On Error Resume Next
+    DoCmd.DoMenuItem A_FORMBAR, 3, 2, , 20
+    DoEvents
+    element.Visible = Not element.Visible
+Exit Function
+
+err_sichtbar:
+    MsgBox Error$
+
+Exit Function
+
+End Function
