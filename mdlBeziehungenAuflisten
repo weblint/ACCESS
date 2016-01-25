@@ -1,0 +1,17 @@
+Public Sub BeziehungenAuflisten()
+
+    Dim db As DAO.Database
+
+    Dim rel As DAO.Relation
+
+    Set db = CurrentDb
+
+    For Each rel In db.Relations
+
+        Debug.Print rel.Name, rel.Table, rel.ForeignTable
+
+    Next rel
+
+    Set db = Nothing
+
+End Sub
