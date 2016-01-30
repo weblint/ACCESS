@@ -16,6 +16,7 @@ Public Sub BeziehungenAuflisten()
 
 End Sub
 
+'Datenmodell anzeigen:
 Private Sub cmdGo_Click()
     RunCommand acCmdRelationships
     DoCmd.Close acForm, Me.Name
