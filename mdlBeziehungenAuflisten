@@ -15,3 +15,8 @@ Public Sub BeziehungenAuflisten()
     Set db = Nothing
 
 End Sub
+
+Private Sub cmdGo_Click()
+    RunCommand acCmdRelationships
+    DoCmd.Close acForm, Me.Name
+End Sub
