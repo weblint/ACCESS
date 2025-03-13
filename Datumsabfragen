@@ -1,0 +1,55 @@
+Akt.Monat
+Jahr([Valutadatum]) = Jahr(Jetzt()) Und Monat([Valutadatum]) = Monat(Jetzt())
+
+SELECT dbo_SpkUmsatz.Betrag, dbo_SpkUmsatz.[Begünstigter/Zahlungspflichtiger]
+FROM dbo_SpkUmsatz
+WHERE (((Year([Valutadatum]))=Year(Now())) AND ((Month([Valutadatum]))=Month(Now())))
+ORDER BY dbo_SpkUmsatz.Valutadatum DESC;
+
+---------------------------------------------------------------------------------------------
+
+Akt.Jahr
+Jahr([Valutadatum]) = Jahr(Datum())
+
+SELECT dbo_SpkUmsatz.Betrag, dbo_SpkUmsatz.[Begünstigter/Zahlungspflichtiger]
+FROM dbo_SpkUmsatz
+WHERE (((Year([Valutadatum]))=Year(Now())))
+ORDER BY dbo_SpkUmsatz.Valutadatum DESC;
+
+---------------------------------------------------------------------------------------------
+
+letztes Quartal
+Jahr([Valutadatum])*4+DatTeil("q";[Valutadatum]) = Jahr(Datum())*4+DatTeil("q";Datum())-1
+
+SELECT dbo_SpkUmsatz.Betrag, dbo_SpkUmsatz.[Begünstigter/Zahlungspflichtiger]
+FROM dbo_SpkUmsatz
+WHERE (((Jahr([Valutadatum])*4+DatTeil("q";[Valutadatum]) = Jahr(Datum())*4+DatTeil("q";Datum())-1)))
+ORDER BY dbo_SpkUmsatz.Valutadatum DESC;
+
+---------------------------------------------------------------------------------------------
+
+Ein Datum enthalten, das innerhalb der letzten 30 oder 31 Tage liegt
+between Date() And DatAdd("M"; -1; Date())
+
+SELECT dbo_SpkUmsatz.Betrag, dbo_SpkUmsatz.[Begünstigter/Zahlungspflichtiger], dbo_SpkUmsatz.[Valutadatum]
+FROM dbo_SpkUmsatz
+WHERE Valutadatum between Date() And DateAdd("M", -1, Date())
+ORDER BY dbo_SpkUmsatz.Valutadatum DESC;
+
+----------------------------------------------------------------------------------------------
+Tabelle erstellen mit Autowert
+/****** Object:  Table [dbo].[ÖlBetankung_]    Script Date: 08.01.2024 11:33:51 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[ÖlBetankung_](
+	[ID] int IDENTITY(1,1) PRIMARY KEY,
+	[Getankte Menge] [int] NULL,
+	[Preis pro 100 Ltr] [money] NULL,
+	[Datum] [date] NULL,
+	[Gesamt] [money] NULL,
+	[Foto] [Image] NULL
+) ON [PRIMARY]
